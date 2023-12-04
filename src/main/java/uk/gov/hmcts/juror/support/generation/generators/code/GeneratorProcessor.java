@@ -27,6 +27,7 @@ import uk.gov.hmcts.juror.support.generation.generators.value.SequenceGeneratorI
 import uk.gov.hmcts.juror.support.generation.generators.value.StringSequenceGenerator;
 import uk.gov.hmcts.juror.support.generation.generators.value.StringSequenceGeneratorImpl;
 import uk.gov.hmcts.juror.support.generation.generators.value.ValueGenerator;
+import uk.gov.hmcts.juror.support.generation.util.Utils;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
@@ -161,7 +162,7 @@ public class GeneratorProcessor extends AbstractProcessor {
             GenerationClass.GenerationField generationField = new GenerationClass.GenerationField(
                 GenerationClass.Visibility.PRIVATE,
                 field.getSimpleName().toString(),
-                "ValueGenerator<" + getFieldType(field) + ">",
+                "ValueGenerator<" + Utils.getFieldType(field) + ">",
                 initializationString
             );
             generationClass.addField(generationField, true, true);
@@ -190,9 +191,9 @@ public class GeneratorProcessor extends AbstractProcessor {
         GenerationClass.GenerationField generationField = new GenerationClass.GenerationField(
             GenerationClass.Visibility.PRIVATE,
             field.getSimpleName().toString(),
-            "ValueGenerator<" + getFieldType(field) + ">",
+            "ValueGenerator<" + Utils.getFieldType(field) + ">",
             FixedValueGeneratorImpl.createInitializationStringWithValue(
-                getPrimitiveDefaultValue(field.asType().toString()), getFieldType(field))
+                getPrimitiveDefaultValue(field.asType().toString()), Utils.getFieldType(field))
         );
         generationClass.addField(generationField, true, true);
         generationClass.addImport(FixedValueGeneratorImpl.class);
@@ -216,25 +217,10 @@ public class GeneratorProcessor extends AbstractProcessor {
         GenerationClass.GenerationField generationField = new GenerationClass.GenerationField(
             GenerationClass.Visibility.PRIVATE,
             field.getSimpleName().toString(),
-            "ValueGenerator<" + getFieldType(field) + ">",
-            NullValueGeneratorImpl.createInitializationString(null, null)
+            "ValueGenerator<" + Utils.getFieldType(field) + ">",
+            NullValueGeneratorImpl.createInitializationString(field, null)
         );
         generationClass.addField(generationField, true, true);
         generationClass.addImport(NullValueGeneratorImpl.class);
-    }
-
-    private String getFieldType(VariableElement field) {
-        String fieldType = field.asType().toString();
-        return switch (fieldType) {
-            case "int" -> Integer.class.getName();
-            case "boolean" -> Boolean.class.getName();
-            case "long" -> Long.class.getName();
-            case "double" -> Double.class.getName();
-            case "float" -> Float.class.getName();
-            case "short" -> Short.class.getName();
-            case "byte" -> Byte.class.getName();
-            case "char" -> Character.class.getName();
-            default -> fieldType;
-        };
     }
 }

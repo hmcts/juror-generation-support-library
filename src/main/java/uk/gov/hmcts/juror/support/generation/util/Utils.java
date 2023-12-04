@@ -1,9 +1,10 @@
 package uk.gov.hmcts.juror.support.generation.util;
 
-import org.apache.commons.text.StringEscapeUtils;
 import uk.gov.hmcts.juror.support.generation.generators.value.DateFilter;
 import uk.gov.hmcts.juror.support.generation.generators.value.DateTimeFilter;
 import uk.gov.hmcts.juror.support.generation.generators.value.TimeFilter;
+
+import javax.lang.model.element.VariableElement;
 
 public final class Utils {
 
@@ -42,5 +43,20 @@ public final class Utils {
         return value
             .replace("\\", "\\\\")
             .replace("\"", "\\\"");
+    }
+
+    public static String getFieldType(VariableElement field) {
+        String fieldType = field.asType().toString();
+        return switch (fieldType) {
+            case "int" -> Integer.class.getName();
+            case "boolean" -> Boolean.class.getName();
+            case "long" -> Long.class.getName();
+            case "double" -> Double.class.getName();
+            case "float" -> Float.class.getName();
+            case "short" -> Short.class.getName();
+            case "byte" -> Byte.class.getName();
+            case "char" -> Character.class.getName();
+            default -> fieldType;
+        };
     }
 }
