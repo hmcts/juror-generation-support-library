@@ -5,7 +5,7 @@ import java.util.Set;
 
 public abstract class AbstractValueGenerator<T> implements ValueGenerator<T> {
 
-    private Set<T> generatedItems;
+    private final Set<T> generatedItems;
     private final boolean forceUnique;
 
     protected AbstractValueGenerator(boolean forceUnique) {
@@ -14,6 +14,8 @@ public abstract class AbstractValueGenerator<T> implements ValueGenerator<T> {
     }
 
     protected abstract T generateValue();
+
+    @Override
     public final T generate() {
         T value = generateValue();
         if (forceUnique) {

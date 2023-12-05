@@ -26,7 +26,8 @@ public class LocalDateTimeGeneratorImpl extends AbstractValueGenerator<LocalDate
 
     public static String createInitializationString(VariableElement element, LocalDateTimeGenerator annotation) {
 
-        return "new LocalDateTimeGeneratorImpl(" + Utils.getLocalDateTimeStringFromDateTimeFilter(annotation.minInclusive())
+        return "new LocalDateTimeGeneratorImpl(" + Utils.getLocalDateTimeStringFromDateTimeFilter(
+            annotation.minInclusive())
             + ", " + Utils.getLocalDateTimeStringFromDateTimeFilter(annotation.maxExclusive()) + ")";
     }
 }

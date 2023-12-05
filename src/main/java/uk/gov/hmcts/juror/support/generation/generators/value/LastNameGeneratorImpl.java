@@ -4,15 +4,10 @@ import uk.gov.hmcts.juror.support.generation.util.NameGenerator;
 
 import javax.lang.model.element.VariableElement;
 
-public class LastNameGeneratorImpl extends AbstractValueGenerator<String> {
+public class LastNameGeneratorImpl extends RandomFromCollectionGeneratorImpl<String> {
 
     public LastNameGeneratorImpl() {
-        super(false);
-    }
-
-    @Override
-    protected String generateValue() {
-        return NameGenerator.generateLastName();
+        super(NameGenerator.LAST_NAMES);
     }
 
     public static String createInitializationString(VariableElement element, LastNameGenerator annotation) {
