@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -22,7 +23,7 @@ public class GenerationClass {
     private final List<GenerationField> fields;
     private final List<GenerationMethod> methods;
     private final Set<String> imports;
-    private final HashMap<String, String[]> interfaces;
+    private final Map<String, String[]> interfaces;
     private Map.Entry<String, String[]> extend;
 
     public GenerationClass(String name, String packageName) {
@@ -115,8 +116,8 @@ public class GenerationClass {
 
     public record GenerationField(Visibility visibility, String name, String fieldType, String initializationString) {
         public String getCode() {
-            return TAB + visibility.name().toLowerCase() + " " + fieldType + " " + name +
-                (initializationString == null ? "" : " = " + initializationString) + ";";
+            return TAB + visibility.name().toLowerCase(Locale.getDefault()) + " " + fieldType + " " + name
+                + (initializationString == null ? "" : " = " + initializationString) + ";";
         }
     }
 
@@ -125,7 +126,8 @@ public class GenerationClass {
                                    String type, String content,
                                    Map<String, String> parameters) {
         public String getCode() {
-            return TAB + visibility.name().toLowerCase() + " " + type + " " + name + getParametersCode()
+            return TAB + visibility.name().toLowerCase(Locale.getDefault()) + " " + type + " " + name
+                + getParametersCode()
                 + " {"
                 + NEW_LINE
                 + getContentWithTabbing()
@@ -137,9 +139,9 @@ public class GenerationClass {
             if (parameters == null || parameters.isEmpty()) {
                 return "()";
             }
-            return "(" +
-                parameters.entrySet().stream().map(entry -> entry.getKey() + " " + entry.getValue())
-                    .reduce((a, b) -> a + ", " + b).get()
+            return "("
+                + parameters.entrySet().stream().map(entry -> entry.getKey() + " " + entry.getValue())
+                .reduce((a, b) -> a + ", " + b).get()
                 + ")";
         }
 
@@ -153,6 +155,6 @@ public class GenerationClass {
     }
 
     public static String capitalise(String text) {
-        return text.substring(0, 1).toUpperCase() + text.substring(1);
+        return text.substring(0, 1).toUpperCase(Locale.getDefault()) + text.substring(1);
     }
 }

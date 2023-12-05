@@ -1,6 +1,7 @@
 package uk.gov.hmcts.juror.support.generation.generators.code;
 
 
+import lombok.SneakyThrows;
 import uk.gov.hmcts.juror.support.generation.generators.value.EmailGenerator;
 import uk.gov.hmcts.juror.support.generation.generators.value.EmailGeneratorImpl;
 import uk.gov.hmcts.juror.support.generation.generators.value.FirstNameGenerator;
@@ -47,6 +48,10 @@ import javax.lang.model.util.ElementFilter;
 
 @SupportedAnnotationTypes("uk.gov.hmcts.juror.support.generation.generators.code.GenerateGenerationConfig")
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
+@SuppressWarnings({
+    "PMD.ExcessiveImports",
+    "PMD.CouplingBetweenObjects"
+})
 public class GeneratorProcessor extends AbstractProcessor {
 
     private static final Map<Class<? extends Annotation>, BiFunction<VariableElement, Annotation, String>>
@@ -113,23 +118,19 @@ public class GeneratorProcessor extends AbstractProcessor {
         return true;
     }
 
+    @SneakyThrows
     private void processGenerateGenerationConfigAnnotation(Element element) {
-        try {
-            final String className = element.getSimpleName().toString();
-            final String packageName = element.getEnclosingElement().toString();
+        final String className = element.getSimpleName().toString();
+        final String packageName = element.getEnclosingElement().toString();
+        GenerationClass generationClass = new GenerationClass(className + "Generator", packageName);
+        generationClass.addExtends("uk.gov.hmcts.juror.support.generation.generators.code.Generator",
+            packageName + "." + className);
+        List<VariableElement> fields = ElementFilter.fieldsIn(element.getEnclosedElements());
+        fields.forEach(field -> processField(field, generationClass));
 
-            GenerationClass generationClass = new GenerationClass(className + "Generator", packageName);
-            generationClass.addExtends("uk.gov.hmcts.juror.support.generation.generators.code.Generator",
-                packageName + "." + className);
-            List<VariableElement> fields = ElementFilter.fieldsIn(element.getEnclosedElements());
-            fields.forEach(field -> processField(field, generationClass));
+        buildGenerateMethod(generationClass, className);
 
-            buildGenerateMethod(generationClass, className);
-
-            generationClass.build(processingEnv);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        generationClass.build(processingEnv);
     }
 
     private void buildGenerateMethod(GenerationClass generationClass, String className) {
@@ -150,9 +151,12 @@ public class GeneratorProcessor extends AbstractProcessor {
         generationClass.addMethod(generationMethod);
     }
 
+
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")//Required
     private void processField(VariableElement field, GenerationClass generationClass) {
         boolean annotationFound = false;
-        for (Map.Entry<Class<? extends Annotation>, BiFunction<VariableElement, Annotation, String>> generatorAnnotation : ANNOTATION_TO_GENERATOR.entrySet()) {
+        for (Map.Entry<Class<? extends Annotation>, BiFunction<VariableElement, Annotation, String>> generatorAnnotation
+            : ANNOTATION_TO_GENERATOR.entrySet()) {
             Annotation annotation = field.getAnnotation(generatorAnnotation.getKey());
             if (annotation == null) {
                 continue;
@@ -202,6 +206,7 @@ public class GeneratorProcessor extends AbstractProcessor {
         generationClass.addImport(FixedValueGeneratorImpl.class);
     }
 
+    @SuppressWarnings("PMD.CyclomaticComplexity")
     private String getPrimitiveDefaultValue(String string) {
         return switch (string) {
             case "int" -> "(java.lang.Integer) 0";

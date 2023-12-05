@@ -1,6 +1,5 @@
 package uk.gov.hmcts.juror.support.generation.generators.value;
 
-import uk.gov.hmcts.juror.support.generation.util.RandomGenerator;
 import uk.gov.hmcts.juror.support.generation.util.ResourceUtils;
 import uk.gov.hmcts.juror.support.generation.util.Utils;
 

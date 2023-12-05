@@ -33,10 +33,12 @@ public final class Utils {
     }
 
     public static String getLocalDateTimeStringFromDateTimeFilter(DateTimeFilter dateTimeFilter) {
-        String localDateGeneratorString = "java.time.LocalDateTime.of(";
-        localDateGeneratorString += getLocalDateStringFromDateFilter(dateTimeFilter.dateFilter()) + ", ";
-        localDateGeneratorString += getLocalDateTimeStringFromTimeFilter(dateTimeFilter.timeFilter()) + ")";
-        return localDateGeneratorString;
+        return new StringBuilder("java.time.LocalDateTime.of(")
+            .append(getLocalDateStringFromDateFilter(dateTimeFilter.dateFilter()))
+            .append(", ")
+            .append(getLocalDateTimeStringFromTimeFilter(dateTimeFilter.timeFilter()))
+            .append(')')
+            .toString();
     }
 
     public static String escape(String value) {

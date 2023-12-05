@@ -17,8 +17,8 @@ public final class ResourceUtils {
             if (inputStream == null) {
                 throw new IOException("File not found: '" + file + "'");
             }
-            try (InputStreamReader isr = new InputStreamReader(inputStream)) {
-                BufferedReader reader = new BufferedReader(isr);
+            try (InputStreamReader isr = new InputStreamReader(inputStream);
+                 BufferedReader reader = new BufferedReader(isr)) {
                 return reader.lines().toList();
             }
         } catch (IOException e) {

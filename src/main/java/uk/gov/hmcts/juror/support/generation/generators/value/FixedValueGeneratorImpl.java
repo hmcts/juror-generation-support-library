@@ -17,7 +17,7 @@ public class FixedValueGeneratorImpl<T> implements ValueGenerator<T> {
     }
 
     public static String createInitializationStringWithValue(String value, String type) {
-        if (type.equals("java.lang.String")) {
+        if ("java.lang.String".equals(type)) {
             return "new FixedValueGeneratorImpl<" + type + ">(\"" + value + "\")";
         }
         return "new FixedValueGeneratorImpl<" + type + ">(" + value + ")";
