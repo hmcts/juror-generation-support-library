@@ -119,7 +119,8 @@ public class GeneratorProcessor extends AbstractProcessor {
             final String packageName = element.getEnclosingElement().toString();
 
             GenerationClass generationClass = new GenerationClass(className + "Generator", packageName);
-            generationClass.addInterface("uk.gov.hmcts.juror.support.generation.generators.code.Generator", packageName + "." + className);
+            generationClass.addExtends("uk.gov.hmcts.juror.support.generation.generators.code.Generator",
+                packageName + "." + className);
             List<VariableElement> fields = ElementFilter.fieldsIn(element.getEnclosedElements());
             fields.forEach(field -> processField(field, generationClass));
 
@@ -141,7 +142,9 @@ public class GeneratorProcessor extends AbstractProcessor {
                 .map(field -> "generated.set" + GenerationClass.capitalise(field.name())
                     + "(this." + field.name() + ".generate()" + ");")
                 .reduce((s1, s2) -> s1 + GenerationClass.NEW_LINE + s2)
-                .orElse("") + GenerationClass.NEW_LINE + "return generated;",
+                .orElse("")
+                + GenerationClass.NEW_LINE + "postGenerate(generated);"
+                + GenerationClass.NEW_LINE + "return generated;",
             null
         );
         generationClass.addMethod(generationMethod);

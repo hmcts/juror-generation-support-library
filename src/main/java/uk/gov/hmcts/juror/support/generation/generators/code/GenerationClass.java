@@ -23,6 +23,7 @@ public class GenerationClass {
     private final List<GenerationMethod> methods;
     private final Set<String> imports;
     private final HashMap<String, String[]> interfaces;
+    private Map.Entry<String, String[]> extend;
 
     public GenerationClass(String name, String packageName) {
         this.name = name;
@@ -73,7 +74,17 @@ public class GenerationClass {
             writer.println("@SuppressWarnings(\"unchecked\")");
             writer.println("public class " + name);
 
-            if(!interfaces.isEmpty()) {
+            if (extend != null) {
+                writer.print(" extends ");
+                writer.print(extend.getKey());
+                if (extend.getValue() != null && extend.getValue().length > 0) {
+                    writer.print("<");
+                    writer.print(String.join(", ", extend.getValue()));
+                    writer.print(">");
+                }
+            }
+
+            if (!interfaces.isEmpty()) {
                 writer.print(" implements ");
                 interfaces.forEach((key, value) -> {
                     writer.print(key);
@@ -95,6 +106,10 @@ public class GenerationClass {
 
     public void addInterface(String interfaceClass, String... genericTypes) {
         interfaces.put(interfaceClass, genericTypes);
+    }
+
+    public void addExtends(String extendsClass, String... genericTypes) {
+        this.extend = new HashMap.SimpleEntry<>(extendsClass, genericTypes);
     }
 
 
