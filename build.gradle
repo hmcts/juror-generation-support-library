@@ -132,8 +132,8 @@ project.tasks['check'].dependsOn integration
 
 sonarqube {
   properties {
-    property "sonar.projectName", "Juror :: spring-support-library"
-    property "sonar.projectKey", "uk.gov.hmcts.juror:spring-support-library"
+    property "sonar.projectName", "Juror :: generation-support-library"
+    property "sonar.projectKey", "uk.gov.hmcts.juror:generation-support-library"
   }
 }
 
@@ -238,4 +238,15 @@ rootProject.tasks.named("processIntegrationTestResources") {
 
 wrapper {
   distributionType = Wrapper.DistributionType.ALL
+}
+
+publishing {
+  publications {
+    Main(MavenPublication) {
+      from components.java
+      groupId project.group
+      artifactId 'generation-support-library.jar'
+      version project.version
+    }
+  }
 }
