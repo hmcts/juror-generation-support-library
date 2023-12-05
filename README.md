@@ -1,4 +1,4 @@
-# juror-sql-support-library
+# juror-generation-support-library
 
 ## Building and deploying the application
 
