@@ -32,7 +32,6 @@ import uk.gov.hmcts.juror.support.generation.util.Utils;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
@@ -44,6 +43,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.util.ElementFilter;
 
 @SupportedAnnotationTypes("uk.gov.hmcts.juror.support.generation.generators.code.GenerateGenerationConfig")
@@ -125,12 +125,23 @@ public class GeneratorProcessor extends AbstractProcessor {
         GenerationClass generationClass = new GenerationClass(className + "Generator", packageName);
         generationClass.addExtends("uk.gov.hmcts.juror.support.generation.generators.code.Generator",
             packageName + "." + className);
-        List<VariableElement> fields = ElementFilter.fieldsIn(element.getEnclosedElements());
-        fields.forEach(field -> processField(field, generationClass));
-
+        processElement(generationClass, element);
         buildGenerateMethod(generationClass, className);
 
+        if (element instanceof TypeElement typeElement) {
+            TypeElement processingElement = typeElement;
+            while (processingElement.getSuperclass() != null
+                && processingElement.getSuperclass() instanceof DeclaredType processingElementDeclaredType
+                && processingElementDeclaredType.asElement() instanceof TypeElement processingElementTypeElement) {
+                processingElement = processingElementTypeElement;
+                processElement(generationClass, processingElement);
+            }
+        }
         generationClass.build(processingEnv);
+    }
+
+    private void processElement(GenerationClass generationClass, Element element) {
+        ElementFilter.fieldsIn(element.getEnclosedElements()).forEach(field -> processField(field, generationClass));
     }
 
     private void buildGenerateMethod(GenerationClass generationClass, String className) {
@@ -154,6 +165,9 @@ public class GeneratorProcessor extends AbstractProcessor {
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")//Required
     private void processField(VariableElement field, GenerationClass generationClass) {
+        if(generationClass.hasField(field.getSimpleName().toString())){
+            return;
+        }
         boolean annotationFound = false;
         for (Map.Entry<Class<? extends Annotation>, BiFunction<VariableElement, Annotation, String>> generatorAnnotation
             : ANNOTATION_TO_GENERATOR.entrySet()) {

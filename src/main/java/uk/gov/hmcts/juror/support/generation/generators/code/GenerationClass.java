@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.processing.ProcessingEnvironment;
 
 @Data
@@ -87,15 +88,16 @@ public class GenerationClass {
 
             if (!interfaces.isEmpty()) {
                 writer.print(" implements ");
-                interfaces.forEach((key, value) -> {
-                    writer.print(key);
-                    if (value != null && value.length > 0) {
-                        writer.print("<");
-                        writer.print(String.join(", ", value));
-                        writer.print(">");
-                    }
-                    //TODO add comma if not last
-                });
+                writer.print(interfaces.entrySet().stream()
+                    .map(entry -> {
+                            String implementsValue = entry.getKey();
+                            if (entry.getValue() != null && entry.getValue().length > 0) {
+                                implementsValue += "<" + String.join(", ", entry.getValue()) + ">";
+                            }
+                            return implementsValue;
+                        }
+                    ).collect(Collectors.joining(","))
+                );
             }
             writer.print("{");
             fields.forEach(field -> writer.println(field.getCode()));
@@ -113,6 +115,9 @@ public class GenerationClass {
         this.extend = new HashMap.SimpleEntry<>(extendsClass, genericTypes);
     }
 
+    public boolean hasField(String fieldName) {
+        return this.fields.stream().anyMatch(generationField -> generationField.name.equals(fieldName));
+    }
 
     public record GenerationField(Visibility visibility, String name, String fieldType, String initializationString) {
         public String getCode() {

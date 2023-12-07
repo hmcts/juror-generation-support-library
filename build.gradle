@@ -12,8 +12,8 @@ plugins {
   id 'org.sonarqube' version '4.4.1.3373'
 }
 
-group = 'com.github.hmcts.juror'
-version = '1.1.0'
+group = 'com.github.hmcts'
+version = '1.2.0'
 
 java {
   toolchain {
@@ -245,7 +245,7 @@ publishing {
     Main(MavenPublication) {
       from components.java
       groupId project.group
-      artifactId 'generation-support-library.jar'
+      artifactId 'juror-generation-support-library'
       version project.version
     }
   }
