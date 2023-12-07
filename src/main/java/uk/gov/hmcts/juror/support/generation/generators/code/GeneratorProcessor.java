@@ -165,7 +165,7 @@ public class GeneratorProcessor extends AbstractProcessor {
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")//Required
     private void processField(VariableElement field, GenerationClass generationClass) {
-        if(generationClass.hasField(field.getSimpleName().toString())){
+        if (generationClass.hasField(field.getSimpleName().toString())) {
             return;
         }
         boolean annotationFound = false;
