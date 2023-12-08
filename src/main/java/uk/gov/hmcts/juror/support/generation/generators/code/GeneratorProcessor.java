@@ -32,16 +32,17 @@ import uk.gov.hmcts.juror.support.generation.util.Utils;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.ElementFilter;
@@ -50,10 +51,13 @@ import javax.lang.model.util.ElementFilter;
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
 @SuppressWarnings({
     "PMD.ExcessiveImports",
-    "PMD.CouplingBetweenObjects"
+    "PMD.CouplingBetweenObjects",
+    "PMD.TooManyMethods"
 })
 public class GeneratorProcessor extends AbstractProcessor {
 
+
+    private static final String GENERATED_CLASS_SUFFIX = "Generator";
     private static final Map<Class<? extends Annotation>, BiFunction<VariableElement, Annotation, String>>
         ANNOTATION_TO_GENERATOR;
 
@@ -122,38 +126,108 @@ public class GeneratorProcessor extends AbstractProcessor {
     private void processGenerateGenerationConfigAnnotation(Element element) {
         final String className = element.getSimpleName().toString();
         final String packageName = element.getEnclosingElement().toString();
-        GenerationClass generationClass = new GenerationClass(className + "Generator", packageName);
-        generationClass.addExtends("uk.gov.hmcts.juror.support.generation.generators.code.Generator",
-            packageName + "." + className);
-        List<VariableElement> fields = ElementFilter.fieldsIn(element.getEnclosedElements());
-        fields.forEach(field -> processField(field, generationClass));
+        GenerationClass generationClass = new GenerationClass(className + GENERATED_CLASS_SUFFIX, packageName);
 
-        buildGenerateMethod(generationClass, className);
+        boolean hasSuperClass = Utils.hasSuperClass(element);
+        if (element.getModifiers().contains(Modifier.ABSTRACT)) {
+            generationClass.setAbstract(true);
+            generationClass.addClassGeneric("T extends " + className);
+            if (!hasSuperClass) {
+                generationClass.addImport(Generator.class);
+                generationClass.addInterface(GENERATED_CLASS_SUFFIX, "T");
+            }
+        } else {
+            if (!hasSuperClass) {
+                generationClass.addImport(Generator.class);
+                generationClass.addInterface(GENERATED_CLASS_SUFFIX, className);
+            }
+        }
 
+        processElement(generationClass, element);
+        if (hasSuperClass) {
+            TypeElement superClassTypeElement = Utils.getSuperClassTypeElement(element);
+            assert superClassTypeElement != null;
+            generationClass.addExtends(Utils.getClassNameFromTypeElement(superClassTypeElement)
+                    + GENERATED_CLASS_SUFFIX,
+                generationClass.isAbstract() ? "T" : className
+            );
+        }
+        addStandardMethods(generationClass, className);
         generationClass.build(processingEnv);
     }
 
-    private void buildGenerateMethod(GenerationClass generationClass, String className) {
+    private void processElement(GenerationClass generationClass, Element element) {
+        ElementFilter.fieldsIn(element.getEnclosedElements()).forEach(field -> processField(field, generationClass));
+    }
+
+
+    private void addStandardMethods(GenerationClass generationClass, String className) {
+        addPopulateMethod(generationClass, className);
+        if (!generationClass.isAbstract()) {
+            addGenerateMethod(generationClass, className);
+            addPostGenerator(generationClass, className);
+        }
+    }
+
+    private void addGenerateMethod(GenerationClass generationClass, String className) {
         GenerationClass.GenerationMethod generationMethod = new GenerationClass.GenerationMethod(
             GenerationClass.Visibility.PUBLIC,
             "generate",
             className,
-            className + " generated = new " + className + "();" + GenerationClass.NEW_LINE
-                + generationClass.getFields().stream()
-                .map(field -> "generated.set" + GenerationClass.capitalise(field.name())
-                    + "(this." + field.name() + ".generate()" + ");")
-                .reduce((s1, s2) -> s1 + GenerationClass.NEW_LINE + s2)
-                .orElse("")
-                + GenerationClass.NEW_LINE + "postGenerate(generated);"
-                + GenerationClass.NEW_LINE + "return generated;",
+            className + " generated = new " + className + "();"
+                + GenerationClass.NEW_LINE
+                + GenerationClass.NEW_LINE + "return populate(generated);",
             null
         );
         generationClass.addMethod(generationMethod);
     }
 
 
+    private void addPopulateMethod(GenerationClass generationClass, String className) {
+        GenerationClass.GenerationMethod populateMethod = new GenerationClass.GenerationMethod(
+            GenerationClass.Visibility.PUBLIC,
+            "populate",
+            className,
+            (generationClass.hasSuperClass() ? "super.populate(generated);" + GenerationClass.NEW_LINE : "")
+                + generationClass.getFields().stream()
+                .map(field -> "generated.set" + Utils.capitalise(field.name())
+                    + "(this." + field.name() + ".generate()" + ");")
+                .reduce((s1, s2) -> s1 + GenerationClass.NEW_LINE + s2)
+                .orElse("")
+                + (generationClass.isAbstract() ? "" : GenerationClass.NEW_LINE + "postGenerate(generated);")
+                + GenerationClass.NEW_LINE + "return generated;",
+            Map.of(className, "generated")
+        );
+        generationClass.addMethod(populateMethod);
+    }
+
+    private void addPostGenerator(GenerationClass generationClass, String className) {
+        generationClass.addField(new GenerationClass.GenerationField(
+            GenerationClass.Visibility.PRIVATE,
+            "postGenerate",
+            "Consumer<" + className + ">",
+            null
+        ), true, true);
+
+        GenerationClass.GenerationMethod postGenerateMethod = new GenerationClass.GenerationMethod(
+            GenerationClass.Visibility.PUBLIC,
+            "postGenerate",
+            "void",
+            "if (postGenerate != null) {" + GenerationClass.NEW_LINE
+                + GenerationClass.TAB + "postGenerate.accept(generated);" + GenerationClass.NEW_LINE
+                + "}",
+            Map.of(className, "generated")
+        );
+        generationClass.addMethod(postGenerateMethod);
+        generationClass.addImport(Consumer.class);
+    }
+
+
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")//Required
     private void processField(VariableElement field, GenerationClass generationClass) {
+        if (generationClass.hasField(field.getSimpleName().toString())) {
+            return;
+        }
         boolean annotationFound = false;
         for (Map.Entry<Class<? extends Annotation>, BiFunction<VariableElement, Annotation, String>> generatorAnnotation
             : ANNOTATION_TO_GENERATOR.entrySet()) {
@@ -177,21 +251,13 @@ public class GeneratorProcessor extends AbstractProcessor {
             annotationFound = true;
         }
         if (!annotationFound) {
-            if (isPrimitive(field)) {
+            if (Utils.isPrimitive(field)) {
                 addPrimitiveField(field, generationClass);
             } else {
                 addNullField(field, generationClass);
             }
         }
         generationClass.addImport(ValueGenerator.class);
-    }
-
-    private boolean isPrimitive(VariableElement field) {
-        String fieldType = field.asType().toString();
-        return switch (fieldType) {
-            case "int", "boolean", "long", "double", "float", "short", "byte", "char" -> true;
-            default -> false;
-        };
     }
 
     private void addPrimitiveField(VariableElement field, GenerationClass generationClass) {

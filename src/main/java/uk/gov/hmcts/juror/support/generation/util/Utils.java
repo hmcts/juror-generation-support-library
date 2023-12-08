@@ -4,7 +4,11 @@ import uk.gov.hmcts.juror.support.generation.generators.value.DateFilter;
 import uk.gov.hmcts.juror.support.generation.generators.value.DateTimeFilter;
 import uk.gov.hmcts.juror.support.generation.generators.value.TimeFilter;
 
+import java.util.Locale;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
 
 public final class Utils {
 
@@ -60,5 +64,39 @@ public final class Utils {
             case "char" -> Character.class.getName();
             default -> fieldType;
         };
+    }
+
+    public static String capitalise(String text) {
+        return text.substring(0, 1).toUpperCase(Locale.getDefault()) + text.substring(1);
+    }
+
+    public static boolean isPrimitive(VariableElement field) {
+        String fieldType = field.asType().toString();
+        return switch (fieldType) {
+            case "int", "boolean", "long", "double", "float", "short", "byte", "char" -> true;
+            default -> false;
+        };
+    }
+
+    public static boolean hasSuperClass(Element element) {
+        return element instanceof TypeElement typeElement
+            && typeElement.getSuperclass() != null
+            && typeElement.getSuperclass() instanceof DeclaredType superClassDeclaredType
+            && superClassDeclaredType.asElement() instanceof TypeElement superClassTypeElement
+            && !Object.class.getName()
+            .equals(getClassNameFromTypeElement(superClassTypeElement));
+    }
+
+    public static String getClassNameFromTypeElement(TypeElement typeElement) {
+        return typeElement.getEnclosingElement().toString() + "."
+            + typeElement.getSimpleName().toString();
+    }
+
+    public static TypeElement getSuperClassTypeElement(Element element) {
+        if (hasSuperClass(element)) {
+            return (TypeElement) ((DeclaredType) ((TypeElement) element).getSuperclass()).asElement();
+        } else {
+            return null;
+        }
     }
 }
