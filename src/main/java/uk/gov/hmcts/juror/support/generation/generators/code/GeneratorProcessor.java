@@ -2,35 +2,13 @@ package uk.gov.hmcts.juror.support.generation.generators.code;
 
 
 import lombok.SneakyThrows;
-import uk.gov.hmcts.juror.support.generation.generators.value.EmailGenerator;
-import uk.gov.hmcts.juror.support.generation.generators.value.EmailGeneratorImpl;
-import uk.gov.hmcts.juror.support.generation.generators.value.FirstNameGenerator;
-import uk.gov.hmcts.juror.support.generation.generators.value.FirstNameGeneratorImpl;
-import uk.gov.hmcts.juror.support.generation.generators.value.FixedValueGenerator;
 import uk.gov.hmcts.juror.support.generation.generators.value.FixedValueGeneratorImpl;
-import uk.gov.hmcts.juror.support.generation.generators.value.IntRangeGenerator;
-import uk.gov.hmcts.juror.support.generation.generators.value.IntRangeGeneratorImpl;
-import uk.gov.hmcts.juror.support.generation.generators.value.LastNameGenerator;
-import uk.gov.hmcts.juror.support.generation.generators.value.LastNameGeneratorImpl;
-import uk.gov.hmcts.juror.support.generation.generators.value.LocalDateGenerator;
-import uk.gov.hmcts.juror.support.generation.generators.value.LocalDateGeneratorImpl;
-import uk.gov.hmcts.juror.support.generation.generators.value.LocalDateTimeGenerator;
-import uk.gov.hmcts.juror.support.generation.generators.value.LocalDateTimeGeneratorImpl;
-import uk.gov.hmcts.juror.support.generation.generators.value.LocalTimeGenerator;
-import uk.gov.hmcts.juror.support.generation.generators.value.LocalTimeGeneratorImpl;
 import uk.gov.hmcts.juror.support.generation.generators.value.NullValueGeneratorImpl;
-import uk.gov.hmcts.juror.support.generation.generators.value.RandomFromFileGenerator;
-import uk.gov.hmcts.juror.support.generation.generators.value.RandomFromFileGeneratorImpl;
-import uk.gov.hmcts.juror.support.generation.generators.value.RegexGenerator;
-import uk.gov.hmcts.juror.support.generation.generators.value.RegexGeneratorImpl;
-import uk.gov.hmcts.juror.support.generation.generators.value.SequenceGenerator;
-import uk.gov.hmcts.juror.support.generation.generators.value.SequenceGeneratorImpl;
-import uk.gov.hmcts.juror.support.generation.generators.value.StringSequenceGenerator;
-import uk.gov.hmcts.juror.support.generation.generators.value.StringSequenceGeneratorImpl;
 import uk.gov.hmcts.juror.support.generation.generators.value.ValueGenerator;
 import uk.gov.hmcts.juror.support.generation.util.Utils;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -56,7 +34,6 @@ import javax.lang.model.util.ElementFilter;
 })
 public class GeneratorProcessor extends AbstractProcessor {
 
-
     private static final String GENERATED_CLASS_SUFFIX = "Generator";
     private static final Map<Class<? extends Annotation>, BiFunction<VariableElement, Annotation, String>>
         ANNOTATION_TO_GENERATOR;
@@ -64,54 +41,34 @@ public class GeneratorProcessor extends AbstractProcessor {
     private static final Map<Class<? extends Annotation>, Class<? extends ValueGenerator>>
         ANNOTATION_TO_GENERATOR_CLASS;
 
-    public static void addGenerator(Class<? extends Annotation> annotation,
-                                    Class<? extends ValueGenerator> generatorClass,
-                                    BiFunction<VariableElement, Annotation, String> generator) {
-        ANNOTATION_TO_GENERATOR_CLASS.put(annotation, generatorClass);
-        ANNOTATION_TO_GENERATOR.put(annotation, generator);
+    @SuppressWarnings("unchecked")
+    private static void addGenerator(Class<? extends ValueGenerator> clazz) {
+        System.out.println("Adding generator: " + clazz);
+        try {
+            Method getAnnotationTypeMethod = clazz.getMethod("getAnnotation");
+            Class<? extends Annotation> annotationType = (Class<? extends Annotation>) getAnnotationTypeMethod
+                .invoke(null);
+            Method createInitializationStringMethod = clazz.getMethod("createInitializationString",
+                VariableElement.class, annotationType);
+
+            ANNOTATION_TO_GENERATOR_CLASS.put(annotationType, clazz);
+            ANNOTATION_TO_GENERATOR.put(annotationType, (element, annotation) -> {
+                try {
+                    return (String) createInitializationStringMethod.invoke(null, element, annotation);
+                } catch (Exception e) {
+                    return null;
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Failed to load generator: " + clazz.getName());
+        }
     }
 
     static {
         ANNOTATION_TO_GENERATOR_CLASS = new HashMap<>();
         ANNOTATION_TO_GENERATOR = new HashMap<>();
-        addGenerator(
-            FirstNameGenerator.class, FirstNameGeneratorImpl.class,
-            (element, annotation) -> FirstNameGeneratorImpl.createInitializationString(element,
-                (FirstNameGenerator) annotation));
-        addGenerator(
-            LastNameGenerator.class, LastNameGeneratorImpl.class,
-            (element, annotation) -> LastNameGeneratorImpl.createInitializationString(element,
-                (LastNameGenerator) annotation));
-        addGenerator(FixedValueGenerator.class, FixedValueGeneratorImpl.class,
-            (element, annotation) -> FixedValueGeneratorImpl.createInitializationString(element,
-                (FixedValueGenerator) annotation));
-        addGenerator(IntRangeGenerator.class, IntRangeGeneratorImpl.class,
-            (element, annotation) -> IntRangeGeneratorImpl.createInitializationString(element,
-                (IntRangeGenerator) annotation));
-        addGenerator(RegexGenerator.class, RegexGeneratorImpl.class,
-            (element, annotation) -> RegexGeneratorImpl.createInitializationString(element,
-                (RegexGenerator) annotation));
-        addGenerator(SequenceGenerator.class, SequenceGeneratorImpl.class,
-            (element, annotation) -> SequenceGeneratorImpl.createInitializationString(element,
-                (SequenceGenerator) annotation));
-        addGenerator(StringSequenceGenerator.class, StringSequenceGeneratorImpl.class,
-            (element, annotation) -> StringSequenceGeneratorImpl.createInitializationString(element,
-                (StringSequenceGenerator) annotation));
-        addGenerator(LocalDateGenerator.class, LocalDateGeneratorImpl.class,
-            (element, annotation) -> LocalDateGeneratorImpl.createInitializationString(element,
-                (LocalDateGenerator) annotation));
-        addGenerator(LocalTimeGenerator.class, LocalTimeGeneratorImpl.class,
-            (element, annotation) -> LocalTimeGeneratorImpl.createInitializationString(element,
-                (LocalTimeGenerator) annotation));
-        addGenerator(LocalDateTimeGenerator.class, LocalDateTimeGeneratorImpl.class,
-            (element, annotation) -> LocalDateTimeGeneratorImpl.createInitializationString(element,
-                (LocalDateTimeGenerator) annotation));
-        addGenerator(RandomFromFileGenerator.class, RandomFromFileGeneratorImpl.class,
-            (element, annotation) -> RandomFromFileGeneratorImpl.createInitializationString(element,
-                (RandomFromFileGenerator) annotation));
-        addGenerator(EmailGenerator.class, EmailGeneratorImpl.class,
-            (element, annotation) -> EmailGeneratorImpl.createInitializationString(element,
-                (EmailGenerator) annotation));
+        Utils.getGenerators().forEach(GeneratorProcessor::addGenerator);
     }
 
     @Override

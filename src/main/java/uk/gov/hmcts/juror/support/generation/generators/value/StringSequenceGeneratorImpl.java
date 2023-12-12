@@ -2,6 +2,7 @@ package uk.gov.hmcts.juror.support.generation.generators.value;
 
 import uk.gov.hmcts.juror.support.generation.util.Utils;
 
+import java.lang.annotation.Annotation;
 import javax.lang.model.element.VariableElement;
 
 public class StringSequenceGeneratorImpl extends AbstractValueGenerator<String> {
@@ -25,5 +26,9 @@ public class StringSequenceGeneratorImpl extends AbstractValueGenerator<String> 
         return "new StringSequenceGeneratorImpl(\"" + Utils.escape(annotation.format()) + "\", "
             + "\"" + annotation.sequenceGenerator().id() + "\", "
             + annotation.sequenceGenerator().start() + "L)";
+    }
+
+    public static Class<? extends Annotation> getAnnotation() {
+        return StringSequenceGenerator.class;
     }
 }

@@ -1,5 +1,6 @@
 package uk.gov.hmcts.juror.support.generation.generators.value;
 
+import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -27,5 +28,9 @@ public class SequenceGeneratorImpl extends AbstractValueGenerator<Long> {
 
     public static String createInitializationString(VariableElement element, SequenceGenerator annotation) {
         return "new SequenceGeneratorImpl(\"" + annotation.id() + "\", " + annotation.start() + "L)";
+    }
+
+    public static Class<? extends Annotation> getAnnotation() {
+        return SequenceGenerator.class;
     }
 }

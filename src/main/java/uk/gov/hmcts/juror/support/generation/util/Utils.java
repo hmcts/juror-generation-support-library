@@ -1,15 +1,24 @@
 package uk.gov.hmcts.juror.support.generation.util;
 
+import uk.gov.hmcts.juror.support.generation.generators.code.MaanualGenerator;
 import uk.gov.hmcts.juror.support.generation.generators.value.DateFilter;
 import uk.gov.hmcts.juror.support.generation.generators.value.DateTimeFilter;
 import uk.gov.hmcts.juror.support.generation.generators.value.TimeFilter;
+import uk.gov.hmcts.juror.support.generation.generators.value.ValueGenerator;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Modifier;
 import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 
+@SuppressWarnings("PMD.AvoidThrowingRawExceptionTypes")//TODO use a proper exception
 public final class Utils {
 
     private Utils() {
@@ -37,12 +46,11 @@ public final class Utils {
     }
 
     public static String getLocalDateTimeStringFromDateTimeFilter(DateTimeFilter dateTimeFilter) {
-        return new StringBuilder("java.time.LocalDateTime.of(")
-            .append(getLocalDateStringFromDateFilter(dateTimeFilter.dateFilter()))
-            .append(", ")
-            .append(getLocalDateTimeStringFromTimeFilter(dateTimeFilter.timeFilter()))
-            .append(')')
-            .toString();
+        return "java.time.LocalDateTime.of("
+            + getLocalDateStringFromDateFilter(dateTimeFilter.dateFilter())
+            + ", "
+            + getLocalDateTimeStringFromTimeFilter(dateTimeFilter.timeFilter())
+            + ')';
     }
 
     public static String escape(String value) {
@@ -97,6 +105,39 @@ public final class Utils {
             return (TypeElement) ((DeclaredType) ((TypeElement) element).getSuperclass()).asElement();
         } else {
             return null;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Set<Class<? extends ValueGenerator>> getGenerators() {
+        return findAllClassesUsingClassLoader("uk.gov.hmcts.juror.support.generation.generators.value")
+            .stream()
+            .filter(ValueGenerator.class::isAssignableFrom)
+            .filter(clazz -> !Modifier.isAbstract(clazz.getModifiers()))
+            .filter(clazz -> !clazz.isAnnotationPresent(MaanualGenerator.class))
+            .map(clazz -> (Class<? extends ValueGenerator>) clazz)
+            .collect(Collectors.toSet());
+    }
+
+    @SuppressWarnings("PMD.UseProperClassLoader")//False positive as annotation processor
+    public static Set<Class> findAllClassesUsingClassLoader(String packageName) {
+        try (InputStream stream = Utils.class.getClassLoader().getResourceAsStream(packageName.replaceAll("[.]", "/"));
+             BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
+            return reader.lines()
+                .filter(line -> line.endsWith(".class"))
+                .map(line -> getClass(line, packageName))
+                .collect(Collectors.toSet());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to find classes in package: " + packageName, e);
+        }
+    }
+
+    private static Class getClass(String className, String packageName) {
+        try {
+            return Class.forName(packageName + "."
+                + className.substring(0, className.lastIndexOf('.')));
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Failed to get class: " + packageName + "." + className, e);
         }
     }
 }

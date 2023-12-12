@@ -13,7 +13,7 @@ plugins {
 }
 
 group = 'com.github.hmcts'
-version = '1.2.0'
+version = '1.3.0'
 
 java {
   toolchain {
@@ -105,7 +105,7 @@ task smoke(type: Test) {
 
 checkstyle {
   maxWarnings = 0
-  toolVersion = '10.12.6'
+  toolVersion = '10.12.5'
   getConfigDirectory().set(new File(rootDir, 'config/checkstyle'))
 }
 

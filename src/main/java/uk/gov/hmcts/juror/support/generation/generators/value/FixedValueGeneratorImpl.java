@@ -2,6 +2,7 @@ package uk.gov.hmcts.juror.support.generation.generators.value;
 
 import uk.gov.hmcts.juror.support.generation.util.Utils;
 
+import java.lang.annotation.Annotation;
 import javax.lang.model.element.VariableElement;
 
 public class FixedValueGeneratorImpl<T> implements ValueGenerator<T> {
@@ -21,6 +22,10 @@ public class FixedValueGeneratorImpl<T> implements ValueGenerator<T> {
             return "new FixedValueGeneratorImpl<" + type + ">(\"" + value + "\")";
         }
         return "new FixedValueGeneratorImpl<" + type + ">(" + value + ")";
+    }
+
+    public static Class<? extends Annotation> getAnnotation() {
+        return FixedValueGenerator.class;
     }
 
     @Override
