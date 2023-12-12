@@ -1,12 +1,12 @@
 package uk.gov.hmcts.juror.support.generation.generators.value;
 
-import uk.gov.hmcts.juror.support.generation.generators.code.MaanualGenerator;
+import uk.gov.hmcts.juror.support.generation.generators.code.ManualGenerator;
 import uk.gov.hmcts.juror.support.generation.util.RandomGenerator;
 
 import java.util.Collection;
 import java.util.List;
 
-@MaanualGenerator
+@ManualGenerator
 public class RandomFromCollectionGeneratorImpl<T> extends AbstractValueGenerator<T> {
 
     private final List<T> values;

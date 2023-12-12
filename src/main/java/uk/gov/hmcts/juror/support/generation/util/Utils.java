@@ -1,18 +1,27 @@
 package uk.gov.hmcts.juror.support.generation.util;
 
-import uk.gov.hmcts.juror.support.generation.generators.code.MaanualGenerator;
 import uk.gov.hmcts.juror.support.generation.generators.value.DateFilter;
 import uk.gov.hmcts.juror.support.generation.generators.value.DateTimeFilter;
+import uk.gov.hmcts.juror.support.generation.generators.value.EmailGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.FirstNameGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.FixedValueGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.FormattedLocalDateGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.FormattedLocalDateTimeGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.IntRangeGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.LastNameGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.LocalDateGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.LocalDateTimeGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.LocalTimeGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.NullValueGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.RandomFromFileGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.RegexGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.SequenceGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.StringSequenceGeneratorImpl;
 import uk.gov.hmcts.juror.support.generation.generators.value.TimeFilter;
 import uk.gov.hmcts.juror.support.generation.generators.value.ValueGenerator;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.Modifier;
 import java.util.Locale;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -108,36 +117,23 @@ public final class Utils {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public static Set<Class<? extends ValueGenerator>> getGenerators() {
-        return findAllClassesUsingClassLoader("uk.gov.hmcts.juror.support.generation.generators.value")
-            .stream()
-            .filter(ValueGenerator.class::isAssignableFrom)
-            .filter(clazz -> !Modifier.isAbstract(clazz.getModifiers()))
-            .filter(clazz -> !clazz.isAnnotationPresent(MaanualGenerator.class))
-            .map(clazz -> (Class<? extends ValueGenerator>) clazz)
-            .collect(Collectors.toSet());
-    }
-
-    @SuppressWarnings("PMD.UseProperClassLoader")//False positive as annotation processor
-    public static Set<Class> findAllClassesUsingClassLoader(String packageName) {
-        try (InputStream stream = Utils.class.getClassLoader().getResourceAsStream(packageName.replaceAll("[.]", "/"));
-             BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
-            return reader.lines()
-                .filter(line -> line.endsWith(".class"))
-                .map(line -> getClass(line, packageName))
-                .collect(Collectors.toSet());
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to find classes in package: " + packageName, e);
-        }
-    }
-
-    private static Class getClass(String className, String packageName) {
-        try {
-            return Class.forName(packageName + "."
-                + className.substring(0, className.lastIndexOf('.')));
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Failed to get class: " + packageName + "." + className, e);
-        }
+        return Set.of(
+            EmailGeneratorImpl.class,
+            FirstNameGeneratorImpl.class,
+            FixedValueGeneratorImpl.class,
+            FormattedLocalDateGeneratorImpl.class,
+            FormattedLocalDateTimeGeneratorImpl.class,
+            IntRangeGeneratorImpl.class,
+            LastNameGeneratorImpl.class,
+            LocalDateGeneratorImpl.class,
+            LocalDateTimeGeneratorImpl.class,
+            LocalTimeGeneratorImpl.class,
+            NullValueGeneratorImpl.class,
+            RandomFromFileGeneratorImpl.class,
+            RegexGeneratorImpl.class,
+            SequenceGeneratorImpl.class,
+            StringSequenceGeneratorImpl.class
+        );//TODO make dynamic
     }
 }
