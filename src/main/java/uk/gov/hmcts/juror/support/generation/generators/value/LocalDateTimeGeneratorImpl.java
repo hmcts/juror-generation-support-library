@@ -3,6 +3,7 @@ package uk.gov.hmcts.juror.support.generation.generators.value;
 
 import uk.gov.hmcts.juror.support.generation.util.Utils;
 
+import java.lang.annotation.Annotation;
 import java.time.LocalDateTime;
 import javax.lang.model.element.VariableElement;
 
@@ -29,5 +30,9 @@ public class LocalDateTimeGeneratorImpl extends AbstractValueGenerator<LocalDate
         return "new LocalDateTimeGeneratorImpl(" + Utils.getLocalDateTimeStringFromDateTimeFilter(
             annotation.minInclusive())
             + ", " + Utils.getLocalDateTimeStringFromDateTimeFilter(annotation.maxExclusive()) + ")";
+    }
+
+    public static Class<? extends Annotation> getAnnotation() {
+        return LocalDateTimeGenerator.class;
     }
 }

@@ -2,14 +2,32 @@ package uk.gov.hmcts.juror.support.generation.util;
 
 import uk.gov.hmcts.juror.support.generation.generators.value.DateFilter;
 import uk.gov.hmcts.juror.support.generation.generators.value.DateTimeFilter;
+import uk.gov.hmcts.juror.support.generation.generators.value.EmailGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.FirstNameGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.FixedValueGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.FormattedLocalDateGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.FormattedLocalDateTimeGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.IntRangeGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.LastNameGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.LocalDateGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.LocalDateTimeGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.LocalTimeGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.NullValueGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.RandomFromFileGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.RegexGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.SequenceGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.StringSequenceGeneratorImpl;
 import uk.gov.hmcts.juror.support.generation.generators.value.TimeFilter;
+import uk.gov.hmcts.juror.support.generation.generators.value.ValueGenerator;
 
 import java.util.Locale;
+import java.util.Set;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 
+@SuppressWarnings("PMD.AvoidThrowingRawExceptionTypes")//TODO use a proper exception
 public final class Utils {
 
     private Utils() {
@@ -37,12 +55,11 @@ public final class Utils {
     }
 
     public static String getLocalDateTimeStringFromDateTimeFilter(DateTimeFilter dateTimeFilter) {
-        return new StringBuilder("java.time.LocalDateTime.of(")
-            .append(getLocalDateStringFromDateFilter(dateTimeFilter.dateFilter()))
-            .append(", ")
-            .append(getLocalDateTimeStringFromTimeFilter(dateTimeFilter.timeFilter()))
-            .append(')')
-            .toString();
+        return "java.time.LocalDateTime.of("
+            + getLocalDateStringFromDateFilter(dateTimeFilter.dateFilter())
+            + ", "
+            + getLocalDateTimeStringFromTimeFilter(dateTimeFilter.timeFilter())
+            + ')';
     }
 
     public static String escape(String value) {
@@ -98,5 +115,25 @@ public final class Utils {
         } else {
             return null;
         }
+    }
+
+    public static Set<Class<? extends ValueGenerator>> getGenerators() {
+        return Set.of(
+            EmailGeneratorImpl.class,
+            FirstNameGeneratorImpl.class,
+            FixedValueGeneratorImpl.class,
+            FormattedLocalDateGeneratorImpl.class,
+            FormattedLocalDateTimeGeneratorImpl.class,
+            IntRangeGeneratorImpl.class,
+            LastNameGeneratorImpl.class,
+            LocalDateGeneratorImpl.class,
+            LocalDateTimeGeneratorImpl.class,
+            LocalTimeGeneratorImpl.class,
+            NullValueGeneratorImpl.class,
+            RandomFromFileGeneratorImpl.class,
+            RegexGeneratorImpl.class,
+            SequenceGeneratorImpl.class,
+            StringSequenceGeneratorImpl.class
+        );//TODO make dynamic
     }
 }

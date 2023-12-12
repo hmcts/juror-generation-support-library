@@ -2,6 +2,7 @@ package uk.gov.hmcts.juror.support.generation.generators.value;
 
 import uk.gov.hmcts.juror.support.generation.util.RandomGenerator;
 
+import java.lang.annotation.Annotation;
 import javax.lang.model.element.VariableElement;
 
 public class IntRangeGeneratorImpl extends AbstractValueGenerator<Integer> {
@@ -23,5 +24,9 @@ public class IntRangeGeneratorImpl extends AbstractValueGenerator<Integer> {
     public static String createInitializationString(VariableElement element, IntRangeGenerator annotation) {
         return "new IntRangeGeneratorImpl(" + annotation.forceUnique() + ", "
             + annotation.minInclusive() + ", " + annotation.maxExclusive() + ")";
+    }
+
+    public static Class<? extends Annotation> getAnnotation() {
+        return IntRangeGenerator.class;
     }
 }

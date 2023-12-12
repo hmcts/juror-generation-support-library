@@ -4,6 +4,7 @@ package uk.gov.hmcts.juror.support.generation.generators.value;
 import uk.gov.hmcts.juror.support.generation.util.RandomGenerator;
 import uk.gov.hmcts.juror.support.generation.util.Utils;
 
+import java.lang.annotation.Annotation;
 import java.time.LocalTime;
 import javax.lang.model.element.VariableElement;
 
@@ -27,5 +28,9 @@ public class LocalTimeGeneratorImpl extends AbstractValueGenerator<LocalTime> {
 
         return "new LocalTimeGeneratorImpl(" + Utils.getLocalDateTimeStringFromTimeFilter(annotation.minInclusive())
             + ", " + Utils.getLocalDateTimeStringFromTimeFilter(annotation.maxExclusive()) + ")";
+    }
+
+    public static Class<? extends Annotation> getAnnotation() {
+        return LocalTimeGenerator.class;
     }
 }
