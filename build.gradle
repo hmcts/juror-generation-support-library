@@ -202,7 +202,7 @@ dependencies {
   implementation 'org.projectlombok:lombok:1.18.30'
   testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
   annotationProcessor 'org.projectlombok:lombok:1.18.30'
-  implementation 'org.jetbrains:annotations:20.1.0'
+  implementation 'org.jetbrains:annotations:24.1.0'
 
 
 
