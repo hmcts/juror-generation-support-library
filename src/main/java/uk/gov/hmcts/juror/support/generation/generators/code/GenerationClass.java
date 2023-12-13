@@ -125,7 +125,7 @@ public class GenerationClass {
     }
 
     public boolean hasSuperClass() {
-        return this.extend != null;
+        return this.extend != null && !this.extend.getKey().equals(GeneratorProcessor.GENERATED_CLASS_SUFFIX);
     }
 
     public void addClassGeneric(String generic) {
