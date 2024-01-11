@@ -27,7 +27,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 
-@SuppressWarnings("PMD.AvoidThrowingRawExceptionTypes")//TODO use a proper exception
+@SuppressWarnings({"PMD.AvoidThrowingRawExceptionTypes", "PMD.CouplingBetweenObjects"})//TODO use a proper exception
 public final class Utils {
 
     private Utils() {
