@@ -196,7 +196,7 @@ dependencies {
   implementation group: 'org.apache.commons', name: 'commons-text', version: '1.11.0'
 
   //Generation
-  implementation group: 'com.github.curious-odd-man', name: 'rgxgen', version: '1.4'
+  implementation group: 'com.github.curious-odd-man', name: 'rgxgen', version: '2.0'
 
   // Documentation, logging
   implementation 'org.projectlombok:lombok:1.18.30'
