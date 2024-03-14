@@ -12,7 +12,7 @@ public class RegexGeneratorImpl extends AbstractValueGenerator<String> {
 
     public RegexGeneratorImpl(boolean forceUnique, String regex) {
         super(forceUnique);
-        this.regex = new RgxGen(regex);
+        this.regex =  RgxGen.parse(regex);
     }
 
     @Override
