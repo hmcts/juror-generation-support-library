@@ -8,19 +8,21 @@ public abstract class Generator<T> {
 
     private final List<Consumer<T>> postGenerateList;
 
-    protected Generator(){
+    protected Generator() {
         this.postGenerateList = new ArrayList<>();
     }
+
     public abstract T generate();
 
-    public void addPostGenerate(Consumer<T> postGenerateConsumer){
+    public void addPostGenerate(Consumer<T> postGenerateConsumer) {
         this.postGenerateList.add(postGenerateConsumer);
     }
-    public void clearPostGenerate(Consumer<T> postGenerateConsumer){
+
+    public void clearPostGenerate(Consumer<T> postGenerateConsumer) {
         this.postGenerateList.clear();
     }
 
-    public void postGenerate(T generated){
+    public void postGenerate(T generated) {
         postGenerateList.forEach(postGenerate -> postGenerate.accept(generated));
     }
 }
