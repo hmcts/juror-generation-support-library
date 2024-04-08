@@ -21,4 +21,8 @@ public final class RandomGenerator {
     public static long nextLong(long minInclusive, long maxExclusive) {
         return RANDOM.nextLong(minInclusive, maxExclusive);
     }
+
+    public static double nextDouble(double minInclusive, double maxExclusive) {
+        return RANDOM.nextDouble(minInclusive, maxExclusive);
+    }
 }
