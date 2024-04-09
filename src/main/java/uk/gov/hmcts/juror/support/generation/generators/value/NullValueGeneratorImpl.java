@@ -8,12 +8,12 @@ import javax.lang.model.element.VariableElement;
 public class NullValueGeneratorImpl<T> implements ValueGenerator<T> {
 
 
-    public static String createInitializationString(VariableElement element, FixedValueGenerator annotation) {
+    public static String createInitializationString(VariableElement element, NullValueGenerator annotation) {
         return "new NullValueGeneratorImpl<" + Utils.getFieldType(element) + ">()";
     }
 
     public static Class<? extends Annotation> getAnnotation() {
-        return FixedValueGenerator.class;
+        return NullValueGenerator.class;
     }
 
     @Override

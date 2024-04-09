@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -34,7 +33,7 @@ import javax.lang.model.util.ElementFilter;
 })
 public class GeneratorProcessor extends AbstractProcessor {
 
-    private static final String GENERATED_CLASS_SUFFIX = "Generator";
+    public static final String GENERATED_CLASS_SUFFIX = "Generator";
     private static final Map<Class<? extends Annotation>, BiFunction<VariableElement, Annotation, String>>
         ANNOTATION_TO_GENERATOR;
 
@@ -91,12 +90,12 @@ public class GeneratorProcessor extends AbstractProcessor {
             generationClass.addClassGeneric("T extends " + className);
             if (!hasSuperClass) {
                 generationClass.addImport(Generator.class);
-                generationClass.addInterface(GENERATED_CLASS_SUFFIX, "T");
+                generationClass.addExtends(GENERATED_CLASS_SUFFIX, "T");
             }
         } else {
             if (!hasSuperClass) {
                 generationClass.addImport(Generator.class);
-                generationClass.addInterface(GENERATED_CLASS_SUFFIX, className);
+                generationClass.addExtends(GENERATED_CLASS_SUFFIX, className);
             }
         }
 
@@ -122,7 +121,6 @@ public class GeneratorProcessor extends AbstractProcessor {
         addPopulateMethod(generationClass, className);
         if (!generationClass.isAbstract()) {
             addGenerateMethod(generationClass, className);
-            addPostGenerator(generationClass, className);
         }
     }
 
@@ -156,27 +154,6 @@ public class GeneratorProcessor extends AbstractProcessor {
             Map.of(className, "generated")
         );
         generationClass.addMethod(populateMethod);
-    }
-
-    private void addPostGenerator(GenerationClass generationClass, String className) {
-        generationClass.addField(new GenerationClass.GenerationField(
-            GenerationClass.Visibility.PRIVATE,
-            "postGenerate",
-            "Consumer<" + className + ">",
-            null
-        ), true, true);
-
-        GenerationClass.GenerationMethod postGenerateMethod = new GenerationClass.GenerationMethod(
-            GenerationClass.Visibility.PUBLIC,
-            "postGenerate",
-            "void",
-            "if (postGenerate != null) {" + GenerationClass.NEW_LINE
-                + GenerationClass.TAB + "postGenerate.accept(generated);" + GenerationClass.NEW_LINE
-                + "}",
-            Map.of(className, "generated")
-        );
-        generationClass.addMethod(postGenerateMethod);
-        generationClass.addImport(Consumer.class);
     }
 
 
