@@ -16,6 +16,11 @@ public class RandomFromCollectionGeneratorImpl<T> extends AbstractValueGenerator
         this.values = items.stream().toList();
     }
 
+    @SafeVarargs
+    public RandomFromCollectionGeneratorImpl(T... items) {
+        this(List.of(items));
+    }
+
     @Override
     protected T generateValue() {
         return values.get(RandomGenerator.nextInt(0, values.size()));

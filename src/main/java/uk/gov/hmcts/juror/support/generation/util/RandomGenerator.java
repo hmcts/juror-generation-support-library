@@ -2,6 +2,9 @@ package uk.gov.hmcts.juror.support.generation.util;
 
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.simple.RandomSource;
+import uk.gov.hmcts.juror.support.generation.generators.value.RandomFromCollectionGeneratorWeightedImpl;
+
+import java.util.Map;
 
 public final class RandomGenerator {
     private static final UniformRandomProvider RANDOM;
@@ -24,5 +27,15 @@ public final class RandomGenerator {
 
     public static double nextDouble(double minInclusive, double maxExclusive) {
         return RANDOM.nextDouble(minInclusive, maxExclusive);
+    }
+
+    public static boolean nextBoolean() {
+        return nextBoolean(0.5, 0.5);
+    }
+
+    public static boolean nextBoolean(double trueWeight, double falseWeight) {
+        return new RandomFromCollectionGeneratorWeightedImpl<>(
+            Map.of(true, trueWeight, false, falseWeight))
+            .generate();
     }
 }

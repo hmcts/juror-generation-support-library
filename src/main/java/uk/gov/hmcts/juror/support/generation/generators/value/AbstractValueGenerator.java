@@ -1,9 +1,11 @@
 package uk.gov.hmcts.juror.support.generation.generators.value;
 
+import uk.gov.hmcts.juror.support.generation.generators.code.Generator;
+
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class AbstractValueGenerator<T> implements ValueGenerator<T> {
+public abstract class AbstractValueGenerator<T> extends Generator<T> implements ValueGenerator<T> {
 
     private final Set<T> generatedItems;
     private final boolean forceUnique;
@@ -24,7 +26,7 @@ public abstract class AbstractValueGenerator<T> implements ValueGenerator<T> {
             }
             generatedItems.add(value);
         }
-        return value;
+        return postGenerate(value);
     }
 
     private boolean isNotUnique(T value) {
