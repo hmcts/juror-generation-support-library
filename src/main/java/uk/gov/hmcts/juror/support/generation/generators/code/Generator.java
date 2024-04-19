@@ -41,6 +41,7 @@ public abstract class Generator<T> {
         return this;
     }
 
+    @SuppressWarnings("PMD.AvoidReassigningParameters")
     public T postGenerate(T generated) {
         for (Function<T, T> postGenerate : postGenerateList) {
             generated = postGenerate.apply(generated);
