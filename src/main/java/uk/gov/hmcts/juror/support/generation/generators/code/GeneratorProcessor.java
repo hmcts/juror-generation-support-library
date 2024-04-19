@@ -142,7 +142,7 @@ public class GeneratorProcessor extends AbstractProcessor {
         GenerationClass.GenerationMethod populateMethod = new GenerationClass.GenerationMethod(
             GenerationClass.Visibility.PUBLIC,
             "populate",
-            className,
+            generationClass.isAbstract() ? "void" : className,
             (generationClass.hasSuperClass() ? "super.populate(generated);" + GenerationClass.NEW_LINE : "")
                 + generationClass.getFields().stream()
                 .map(field -> "generated.set" + Utils.capitalise(field.name())
