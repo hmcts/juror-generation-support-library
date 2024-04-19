@@ -11,6 +11,7 @@ public abstract class AbstractValueGenerator<T> extends Generator<T> implements 
     private final boolean forceUnique;
 
     protected AbstractValueGenerator(boolean forceUnique) {
+       super();
         this.forceUnique = forceUnique;
         this.generatedItems = new HashSet<>();
     }
