@@ -149,8 +149,7 @@ public class GeneratorProcessor extends AbstractProcessor {
                     + "(this." + field.name() + ".generate()" + ");")
                 .reduce((s1, s2) -> s1 + GenerationClass.NEW_LINE + s2)
                 .orElse("")
-                + (generationClass.isAbstract() ? "" : GenerationClass.NEW_LINE + "postGenerate(generated);")
-                + GenerationClass.NEW_LINE + "return generated;",
+                + (generationClass.isAbstract() ? "" : GenerationClass.NEW_LINE + "return postGenerate(generated);"),
             Map.of(className, "generated")
         );
         generationClass.addMethod(populateMethod);
