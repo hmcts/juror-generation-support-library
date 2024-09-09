@@ -13,6 +13,7 @@ import uk.gov.hmcts.juror.support.generation.generators.value.LocalDateGenerator
 import uk.gov.hmcts.juror.support.generation.generators.value.LocalDateTimeGeneratorImpl;
 import uk.gov.hmcts.juror.support.generation.generators.value.LocalTimeGeneratorImpl;
 import uk.gov.hmcts.juror.support.generation.generators.value.NullValueGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.RandomFromCollectionGeneratorImpl;
 import uk.gov.hmcts.juror.support.generation.generators.value.RandomFromFileGeneratorImpl;
 import uk.gov.hmcts.juror.support.generation.generators.value.RegexGeneratorImpl;
 import uk.gov.hmcts.juror.support.generation.generators.value.SequenceGeneratorImpl;
@@ -131,9 +132,28 @@ public final class Utils {
             LocalTimeGeneratorImpl.class,
             NullValueGeneratorImpl.class,
             RandomFromFileGeneratorImpl.class,
+            RandomFromCollectionGeneratorImpl.class,
             RegexGeneratorImpl.class,
             SequenceGeneratorImpl.class,
             StringSequenceGeneratorImpl.class
         );//TODO make dynamic
+    }
+
+    public static String[] toStringArray(Object[] objectArray) {
+        return java.util.Arrays.stream(objectArray)
+            .map(Object::toString)
+            .toArray(String[]::new);
+    }
+
+    public static String[] toStringArray(int[] objectArray) {
+        return java.util.Arrays.stream(objectArray)
+            .mapToObj(Integer::toString)
+            .toArray(String[]::new);
+    }
+
+    public static String[] toStringArray(long[] objectArray) {
+        return java.util.Arrays.stream(objectArray)
+            .mapToObj(Long::toString)
+            .toArray(String[]::new);
     }
 }
