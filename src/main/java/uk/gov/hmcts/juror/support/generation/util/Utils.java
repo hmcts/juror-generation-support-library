@@ -21,6 +21,7 @@ import uk.gov.hmcts.juror.support.generation.generators.value.StringSequenceGene
 import uk.gov.hmcts.juror.support.generation.generators.value.TimeFilter;
 import uk.gov.hmcts.juror.support.generation.generators.value.ValueGenerator;
 
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Set;
 import javax.lang.model.element.Element;
@@ -139,20 +140,20 @@ public final class Utils {
         );//TODO make dynamic
     }
 
-    public static String[] toStringArray(Object[] objectArray) {
-        return java.util.Arrays.stream(objectArray)
+    public static String[] toStringArray(Object... objectArray) {
+        return Arrays.stream(objectArray)
             .map(Object::toString)
             .toArray(String[]::new);
     }
 
-    public static String[] toStringArray(int[] objectArray) {
-        return java.util.Arrays.stream(objectArray)
+    public static String[] toStringArray(int... objectArray) {
+        return Arrays.stream(objectArray)
             .mapToObj(Integer::toString)
             .toArray(String[]::new);
     }
 
-    public static String[] toStringArray(long[] objectArray) {
-        return java.util.Arrays.stream(objectArray)
+    public static String[] toStringArray(long... objectArray) {
+        return Arrays.stream(objectArray)
             .mapToObj(Long::toString)
             .toArray(String[]::new);
     }
