@@ -13,6 +13,7 @@ import uk.gov.hmcts.juror.support.generation.generators.value.LocalDateGenerator
 import uk.gov.hmcts.juror.support.generation.generators.value.LocalDateTimeGeneratorImpl;
 import uk.gov.hmcts.juror.support.generation.generators.value.LocalTimeGeneratorImpl;
 import uk.gov.hmcts.juror.support.generation.generators.value.NullValueGeneratorImpl;
+import uk.gov.hmcts.juror.support.generation.generators.value.RandomFromCollectionGeneratorImpl;
 import uk.gov.hmcts.juror.support.generation.generators.value.RandomFromFileGeneratorImpl;
 import uk.gov.hmcts.juror.support.generation.generators.value.RegexGeneratorImpl;
 import uk.gov.hmcts.juror.support.generation.generators.value.SequenceGeneratorImpl;
@@ -20,6 +21,7 @@ import uk.gov.hmcts.juror.support.generation.generators.value.StringSequenceGene
 import uk.gov.hmcts.juror.support.generation.generators.value.TimeFilter;
 import uk.gov.hmcts.juror.support.generation.generators.value.ValueGenerator;
 
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Set;
 import javax.lang.model.element.Element;
@@ -131,9 +133,28 @@ public final class Utils {
             LocalTimeGeneratorImpl.class,
             NullValueGeneratorImpl.class,
             RandomFromFileGeneratorImpl.class,
+            RandomFromCollectionGeneratorImpl.class,
             RegexGeneratorImpl.class,
             SequenceGeneratorImpl.class,
             StringSequenceGeneratorImpl.class
         );//TODO make dynamic
+    }
+
+    public static String[] toStringArray(Object... objectArray) {
+        return Arrays.stream(objectArray)
+            .map(Object::toString)
+            .toArray(String[]::new);
+    }
+
+    public static String[] toStringArray(int... objectArray) {
+        return Arrays.stream(objectArray)
+            .mapToObj(Integer::toString)
+            .toArray(String[]::new);
+    }
+
+    public static String[] toStringArray(long... objectArray) {
+        return Arrays.stream(objectArray)
+            .mapToObj(Long::toString)
+            .toArray(String[]::new);
     }
 }

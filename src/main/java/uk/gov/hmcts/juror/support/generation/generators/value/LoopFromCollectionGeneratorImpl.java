@@ -10,7 +10,7 @@ public class LoopFromCollectionGeneratorImpl<T> extends AbstractValueGenerator<T
 
     private final List<T> values;
 
-    private int index = 0;
+    private int index;
 
     public LoopFromCollectionGeneratorImpl(Collection<T> items) {
         super(false);
@@ -23,11 +23,13 @@ public class LoopFromCollectionGeneratorImpl<T> extends AbstractValueGenerator<T
     }
 
     @Override
-    protected synchronized T generateValue() {
-        index++;
-        if (index >= values.size()) {
-            index = 0;
+    protected T generateValue() {
+        synchronized (this) {
+            index++;
+            if (index >= values.size()) {
+                index = 0;
+            }
+            return values.get(index);
         }
-        return values.get(index);
     }
 }
