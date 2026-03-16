@@ -176,12 +176,7 @@ repositories {
   mavenLocal()
   mavenCentral()
   maven {
-    name = "AzureArtifacts"
-    url = uri("https://pkgs.dev.azure.com/hmcts/Artifacts/_packaging/hmcts-lib/maven/v1")
-    credentials {
-      username = System.getenv("AZURE_DEVOPS_ARTIFACT_USERNAME")
-      password = System.getenv("AZURE_DEVOPS_ARTIFACT_TOKEN")
-    }
+    url = uri('https://pkgs.dev.azure.com/hmcts/Artifacts/_packaging/hmcts-lib/maven/v1')
   }
 }
 
@@ -194,7 +189,7 @@ ext {
 ext['snakeyaml.version'] = '2.0'
 
 dependencies {
-  implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: '6.1.6'
+  implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: '6.1.9'
 
   implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: log4JVersion
   implementation group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: log4JVersion
@@ -248,12 +243,22 @@ wrapper {
 }
 
 publishing {
+  repositories {
+    maven {
+      name = "AzureArtifacts"
+      url = uri("https://pkgs.dev.azure.com/hmcts/Artifacts/_packaging/hmcts-lib/maven/v1")
+      credentials {
+        username = System.getenv("AZURE_DEVOPS_ARTIFACT_USERNAME")
+        password = System.getenv("AZURE_DEVOPS_ARTIFACT_TOKEN")
+      }
+    }
+  }
   publications {
     Main(MavenPublication) {
       from components.java
-      groupId project.group
-      artifactId 'juror-generation-support-library'
-      version project.version
+      groupId = project.group
+      artifactId = 'juror-generation-support-library'
+      version = project.version
     }
   }
 }
